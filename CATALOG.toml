@@ -1,0 +1,24 @@
+# Machine-readable entry for this repository. Aggregated into public-software/catalog.
+# Edit here; `pub catalog sync` propagates description, topics and custom properties to GitHub.
+
+[repo]
+name        = "observe"
+ring        = "platform"          # spine | platform | system | domain | standards
+layers      = ["L8"]
+wave        = 1
+tier        = "incubating"        # incubating | stable | core | archived
+maintainers = ["maint-observe"]
+summary     = "Metrics/trace/log schema, OTel exporters, dashboards {{PURPOSE}} alerting product (Grafana-class) on the Rust stores."
+
+# One [[component]] per crate, app or service this workspace publishes.
+# planned: pub-observe · pubd-dash · alert rules · SIEM UI (with security)
+#
+# [[component]]
+# crate     = "pub-observe-example"
+# kind      = "lib"                # lib | app | service | plugin | spec
+# ledger    = "<ledger entry name>"
+# readiness = "none"               # shipped | partial | seed | none
+# effort    = 3
+# specs     = []
+# provides  = ["public:area/iface@1"]
+# requires  = []
