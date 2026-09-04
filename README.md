@@ -13,16 +13,55 @@ Planned components: pub-observe · pubd-dash · alert rules · SIEM UI (with sec
 
 ## In 30 seconds
 
-_A runnable example goes here the day the first crate lands._
+```rust
+use pub_observe_schema::{KeyValue, Resource, ResourceSpans, ScopeSpans, Signal, Span, SpanId, SpanKind, TraceId, TracesData};
+
+let span = Span {
+    trace_id: TraceId::from_hex("5b8efff798038103d269b633813fc60c")?,
+    span_id: SpanId::from_hex("eee19b7ec3c1b174")?,
+    name: "GET /".into(),
+    kind: SpanKind::Server,
+    start_time_unix_nano: 1_544_712_660_000_000_000,
+    end_time_unix_nano: 1_544_712_661_000_000_000,
+    attributes: vec![KeyValue::new("http.request.method", "GET")],
+    ..Span::default()
+};
+let traces = TracesData { resource_spans: vec![ResourceSpans {
+    resource: Some(Resource { attributes: vec![KeyValue::new("service.name", "web")], ..Resource::default() }),
+    scope_spans: vec![ScopeSpans { spans: vec![span], ..ScopeSpans::default() }],
+    ..ResourceSpans::default()
+}] };
+let json = traces.to_json();                        // what any OTLP receiver accepts on /v1/traces
+assert_eq!(TracesData::from_json(&json)?, traces);  // what any OpenTelemetry SDK sends decodes here
+```
 
 ## What it does
 
+- `pub-observe-schema`: the signal schema every exporter, store and dashboard of the suite speaks.
+  A resource and an instrumentation scope; spans with events, links and a status; metrics as gauges,
+  sums, histograms, exponential histograms and summaries over their data points and exemplars; log
+  records with a severity, a body and their trace context. The model is the OpenTelemetry
+  protocol's and the JSON encoding is the OTLP/JSON mapping, deviations included (hex identifiers,
+  integer-only enums, 64-bit integers as decimal strings, unknown fields ignored), verified against
+  the protocol's own example payloads. `from_json` parses then validates: what the protocol calls
+  invalid (a span ending before it starts, an all-zero identifier, a sum without a temporality, a
+  histogram whose buckets do not match its bounds, duplicate attribute keys) is refused with its
+  path and its rule (ADR-0001). Dependencies `serde` and `serde_json`; forbids `unsafe_code`.
+
 ## What it does not do (yet)
+
+- Export anything: the OTLP/HTTP and gRPC exporters, the tracing and metrics facades the platform
+  crates use, are the next crates (`pub-observe`).
+- Store, query or draw anything: the dashboards and alerting daemon (`pubd-dash`) and the alert
+  rules build on this schema.
+- The profiles signal, entity references, the protobuf binary encoding, the export request and
+  response messages: later chunks of the schema (ADR-0001, decision 5).
 
 ## Status
 
 | Ledger entry | Readiness | Next |
 |---|---|---|
+| signal schema (`pub-observe-schema`) | seed: the three signals, the OTLP/JSON mapping, validation | the export request and response messages; the protobuf binary encoding |
 
 ## How it fits the suite
 

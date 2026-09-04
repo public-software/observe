@@ -22,3 +22,13 @@ summary     = "Metrics/trace/log schema, OTel exporters, dashboards {{PURPOSE}} 
 # specs     = []
 # provides  = ["public:area/iface@1"]
 # requires  = []
+
+[[component]]
+crate     = "pub-observe-schema"
+kind      = "lib"
+ledger    = "signal schema"
+readiness = "seed"
+effort    = 3
+specs     = ["otlp"]
+provides  = []
+requires  = []
